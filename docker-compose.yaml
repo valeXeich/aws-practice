@@ -1,0 +1,43 @@
+services:
+  app:
+    build: .
+    container_name: ${PROJECT_ALIAS_NAME}-spam-bot
+    env_file:
+      - ./.env
+    ports:
+      - "6336:6336"
+    depends_on:
+      - db
+    volumes:
+      - ./src:/app/src
+      - ./migrations:/app/migrations
+    command:
+      [
+        "python",
+        "-Om",
+        "src",
+      ]
+    networks:
+      - aws-practice-network
+
+  db:
+    image: postgres:16
+    container_name: ${PROJECT_ALIAS_NAME}-local_pgdb
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB__USERNAME}
+      - POSTGRES_PASSWORD=${DB__PASSWORD}
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - local_pgdata:/var/lib/postgresql/data
+    networks:
+      - aws-practice-network
+
+volumes:
+  local_pgdata:
+
+networks:
+  aws-practice-network:
+    external: true
